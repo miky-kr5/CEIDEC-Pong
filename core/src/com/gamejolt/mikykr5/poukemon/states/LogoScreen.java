@@ -16,19 +16,63 @@
 package com.gamejolt.mikykr5.poukemon.states;
 
 import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.Texture;
+import com.gamejolt.mikykr5.poukemon.GameCore;
+import com.gamejolt.mikykr5.poukemon.GameCore.game_states_t;
 
 public class LogoScreen extends BaseState {
+	private static final String CLASS_NAME = LogoScreen.class.getSimpleName(); 
+	private Texture logo;
+	private long then;
+
+	public LogoScreen(final GameCore core){
+		if(core == null)
+			throw new IllegalArgumentException(CLASS_NAME + ": Core is null.");
+
+		this.core = core;
+		then = System.currentTimeMillis();
+
+		logo = new Texture(Gdx.files.internal("data/gfx/textures/monkey.png"));
+	}
 
 	@Override
-	public void render(float delta) {
-		// TODO Auto-generated method stub
+	public void render(float _){
+		long now, delta;
 
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+		core.batch.setProjectionMatrix(this.pixelPerfectCamera.combined);
+		core.batch.begin();{
+			core.batch.draw(logo, -logo.getWidth() / 2, -logo.getHeight() / 2);
+		}core.batch.end();
+
+		now = System.currentTimeMillis();
+		delta = now - then;
+		if(delta > 8000L){
+			core.nextState = game_states_t.MAIN_MENU;
+			then = now;
+		}
 	}
 
 	@Override
 	public void dispose() {
-		// TODO Auto-generated method stub
-
+		logo.dispose();
 	}
 
+
+	@Override
+	public boolean touchDown(int screenX, int screenY, int pointer, int button){
+		then = 0L;
+
+		return true;
+	};
+
+	@Override
+	public boolean keyDown(int keycode){
+		then = 0L;
+
+		return true;
+	};
 }
