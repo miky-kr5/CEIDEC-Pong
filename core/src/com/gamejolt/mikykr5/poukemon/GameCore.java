@@ -29,9 +29,12 @@ import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
+import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 import com.gamejolt.mikykr5.poukemon.states.BaseState;
-import com.gamejolt.mikykr5.poukemon.states.LogoScreen;
+import com.gamejolt.mikykr5.poukemon.states.LoadingState;
+import com.gamejolt.mikykr5.poukemon.states.LogoScreenState;
 import com.gamejolt.mikykr5.poukemon.states.MainMenuState;
+import com.gamejolt.mikykr5.poukemon.utils.AsyncAssetLoader;
 
 public class GameCore extends Game {
 	private static final String TAG = "GAME_CORE";
@@ -71,6 +74,8 @@ public class GameCore extends Game {
 
 	@Override
 	public void create () {
+		AsyncAssetLoader loader = AsyncAssetLoader.getInstance();
+
 		// Set up rendering fields and settings.
 		ShaderProgram.pedantic = false;
 		batch = new SpriteBatch();
@@ -95,16 +100,23 @@ public class GameCore extends Game {
 		states = new BaseState[game_states_t.getNumStates()];
 
 		try{
-			states[game_states_t.LOGO_SCREEN.getValue()] = new LogoScreen(this);
+			states[game_states_t.LOGO_SCREEN.getValue()] = new LogoScreenState(this);
 			states[game_states_t.MAIN_MENU.getValue()] = new MainMenuState(this);
 			states[game_states_t.IN_GAME.getValue()] = null;
-			states[game_states_t.LOADING.getValue()] = null;
+			states[game_states_t.LOADING.getValue()] = new LoadingState(this);
 			states[game_states_t.QUIT.getValue()] = null;
 		}catch(IllegalArgumentException e){
 			Gdx.app.error(TAG, CLASS_NAME + ".create(): Illegal argument caught creating states: ", e);
 			System.exit(1);
 			return;
 		}
+
+		for(BaseState state : states){
+			if(state != null && state instanceof AssetsLoadedListener)
+				loader.addListener((AssetsLoadedListener)state);
+		}
+		AsyncAssetLoader.freeInstance();
+		loader = null;
 
 		// Set the initial current and next states.
 		currState = game_states_t.LOGO_SCREEN;

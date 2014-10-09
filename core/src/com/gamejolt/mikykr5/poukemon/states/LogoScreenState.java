@@ -21,12 +21,12 @@ import com.badlogic.gdx.graphics.Texture;
 import com.gamejolt.mikykr5.poukemon.GameCore;
 import com.gamejolt.mikykr5.poukemon.GameCore.game_states_t;
 
-public class LogoScreen extends BaseState {
-	private static final String CLASS_NAME = LogoScreen.class.getSimpleName(); 
+public class LogoScreenState extends BaseState{
+	private static final String CLASS_NAME = LogoScreenState.class.getSimpleName(); 
 	private Texture logo;
 	private long then;
 
-	public LogoScreen(final GameCore core){
+	public LogoScreenState(final GameCore core){
 		if(core == null)
 			throw new IllegalArgumentException(CLASS_NAME + ": Core is null.");
 
@@ -51,7 +51,7 @@ public class LogoScreen extends BaseState {
 		now = System.currentTimeMillis();
 		delta = now - then;
 		if(delta > 8000L){
-			core.nextState = game_states_t.MAIN_MENU;
+			core.nextState = game_states_t.LOADING;
 			then = now;
 		}
 	}
@@ -60,7 +60,6 @@ public class LogoScreen extends BaseState {
 	public void dispose() {
 		logo.dispose();
 	}
-
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button){

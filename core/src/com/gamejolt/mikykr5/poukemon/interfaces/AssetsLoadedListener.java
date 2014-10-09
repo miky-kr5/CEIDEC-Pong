@@ -13,13 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.gamejolt.mikykr5.poukemon;
+package com.gamejolt.mikykr5.poukemon.interfaces;
 
-public abstract class ProjectConstants{
-	public static final int     EXIT_SUCCESS               = 0;
-	public static final int     EXIT_FAILURE               = 1;
-
-	public static final boolean DEBUG                      = false;
-
-	public static final int[]   POWERS_OF_2                = {64, 128, 256, 512, 1024, 2048};
+public interface AssetsLoadedListener {
+	public void onAssetsLoaded();
 }
