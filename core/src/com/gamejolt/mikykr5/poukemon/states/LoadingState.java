@@ -32,6 +32,8 @@ public class LoadingState extends BaseState{
 	// Helper fields.
 	private AsyncAssetLoader  loader;
 	private CachedFontManager fontManager;
+	private float             timeSinceShown;
+	private boolean           loadingDone;
 
 	// Graphic data.
 	private BitmapFont          font;
@@ -49,12 +51,18 @@ public class LoadingState extends BaseState{
 		this.core = core;
 
 		// Create the start button font.
-		font = fontManager.loadFont("data/fonts/d-puntillas-B-to-tiptoe.ttf", CachedFontManager.BASE_FONT_SIZE * 3);
+		font = fontManager.loadFont("data/fonts/Big_Bottom_Cartoon.ttf", CachedFontManager.BASE_FONT_SIZE * 3);
 
 		// Set up the background.
 		scrollingBckg = new ScrollingBackground("data/gfx/textures/floortiles.png", false);
 
 		stateEnabled = false;
+		loadingDone = false;
+	}
+
+	@Override
+	public void show(){
+		timeSinceShown = 0.0f;
 	}
 
 	@Override
@@ -74,13 +82,16 @@ public class LoadingState extends BaseState{
 
 		}core.batch.end();
 
-		if(loader != null){
+		if(!loadingDone && loader != null){
 			if(loader.loadAssets()){
 				loader.notifyListeners();
-
-				core.nextState = game_states_t.MAIN_MENU;
+				loadingDone = true;
 			}
 		}
+
+		timeSinceShown += delta;
+		if(loadingDone && timeSinceShown >= 3.0f)
+			core.nextState = game_states_t.MAIN_MENU;
 	}
 
 	@Override
