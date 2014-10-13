@@ -13,19 +13,24 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon.android;
+package com.gamejolt.mikykr5.poukemon.states;
 
-import android.os.Bundle;
-
-import com.badlogic.gdx.backends.android.AndroidApplication;
-import com.badlogic.gdx.backends.android.AndroidApplicationConfiguration;
+import com.badlogic.gdx.Gdx;
+import com.badlogic.gdx.graphics.GL20;
 import com.gamejolt.mikykr5.poukemon.GameCore;
 
-public class AndroidLauncher extends AndroidApplication {
+public class InGameState extends BaseState {
+	public InGameState(final GameCore core) throws IllegalArgumentException {
+		super(core);
+	}
+
 	@Override
-	protected void onCreate (Bundle savedInstanceState) {
-		super.onCreate(savedInstanceState);
-		AndroidApplicationConfiguration config = new AndroidApplicationConfiguration();
-		initialize(new GameCore(), config);
+	public void render(float delta) {
+		Gdx.gl.glClearColor(0, 0, 0, 1);
+		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+	}
+
+	@Override
+	public void dispose() {
 	}
 }
