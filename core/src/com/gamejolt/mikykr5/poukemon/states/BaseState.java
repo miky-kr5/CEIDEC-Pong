@@ -46,6 +46,9 @@ public abstract class BaseState implements Screen, InputProcessor{
 	  ; STATE METHODS ;
 	  ;;;;;;;;;;;;;;;;;*/
 
+	/**
+	 * Executes a set of standard actions when the state is set by the {@link GameCore}.
+	 */
 	public void onStateEnabled(){
 		stateEnabled = true;
 		Gdx.input.setInputProcessor(this);
@@ -53,6 +56,9 @@ public abstract class BaseState implements Screen, InputProcessor{
 		Gdx.input.setCatchMenuKey(true);
 	}
 
+	/**
+	 * Executes a set of standard actions when the state is removed by the {@link GameCore}.
+	 */
 	public void onStateDisabled(){
 		stateEnabled = false;
 		Gdx.input.setInputProcessor(null);
@@ -71,7 +77,9 @@ public abstract class BaseState implements Screen, InputProcessor{
 	public abstract void dispose();
 
 	@Override
-	public void resize(int width, int height){ }
+	public void resize(int width, int height){
+		this.pixelPerfectCamera = new OrthographicCamera(Gdx.graphics.getWidth(), Gdx.graphics.getHeight());
+	}
 
 	@Override
 	public void show(){ }
@@ -89,6 +97,13 @@ public abstract class BaseState implements Screen, InputProcessor{
 	  ; HELPER METHODS ;
 	  ;;;;;;;;;;;;;;;;;;*/
 
+	/**
+	 * Converts a point in screen coordinates to world coordinates inside the view of this state's {@link BaseState#pixelPerfectCamera}.
+	 * The result is stored in the {@link BaseState#touchPointWorldCoords} vector.
+	 * 
+	 * @param screenX The x coordinate in window space.
+	 * @param screenY The y coordinate in window space.
+	 */
 	protected final void unprojectTouch(int screenX, int screenY){
 		win2world.set(screenX, screenY, 0.0f);
 		pixelPerfectCamera.unproject(win2world);

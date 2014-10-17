@@ -17,10 +17,12 @@ package com.gamejolt.mikykr5.poukemon.utils;
 
 import java.util.LinkedList;
 
+import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.assets.AssetManager;
+import com.badlogic.gdx.utils.Disposable;
 import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 
-public final class AsyncAssetLoader {
+public final class AsyncAssetLoader implements Disposable{
 	private LinkedList<AssetsLoadedListener> listeners;
 	private AssetManager manager;
 
@@ -43,7 +45,10 @@ public final class AsyncAssetLoader {
 
 	public static void freeInstance(){
 		SingletonHolder.REF_COUNT--;
-		if(SingletonHolder.REF_COUNT <= 0) SingletonHolder.INSTANCE = null;
+		if(SingletonHolder.REF_COUNT <= 0){
+			SingletonHolder.INSTANCE.dispose();
+			SingletonHolder.INSTANCE = null;
+		}
 	}
 
 	public void addListener(AssetsLoadedListener listener) throws IllegalArgumentException{
@@ -91,5 +96,11 @@ public final class AsyncAssetLoader {
 
 	private void checkParametes(Object parameter, String paramName) throws IllegalArgumentException{
 		if(parameter == null) throw new IllegalArgumentException("Parameter: " + paramName + " is null.");
+	}
+
+	@Override
+	public void dispose(){
+		Gdx.app.log("ASYNC_LOADER", "Disposing asset manager.");
+		manager.dispose();
 	}
 }

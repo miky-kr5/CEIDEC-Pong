@@ -13,13 +13,12 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon;
+package com.gamejolt.mikykr5.poukemon.ecs.entities;
 
-public abstract class ProjectConstants{
-	public static final int     EXIT_SUCCESS               = 0;
-	public static final int     EXIT_FAILURE               = 1;
+import com.badlogic.ashley.core.PooledEngine;
 
-	public static final boolean DEBUG                      = true;
-
-	public static final int[]   POWERS_OF_2                = {64, 128, 256, 512, 1024, 2048};
+public abstract class EntityInitializerBase{
+	public abstract void createAllEntities(PooledEngine engine);
+	public abstract void setLoadableAssets(PooledEngine engine) throws IllegalStateException;
+	public abstract void disposeAssets(PooledEngine engine) throws IllegalStateException;
 }

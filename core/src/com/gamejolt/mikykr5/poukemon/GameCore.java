@@ -31,6 +31,7 @@ import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.graphics.glutils.ShaderProgram;
 import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 import com.gamejolt.mikykr5.poukemon.states.BaseState;
+import com.gamejolt.mikykr5.poukemon.states.InGameState;
 import com.gamejolt.mikykr5.poukemon.states.LoadingState;
 import com.gamejolt.mikykr5.poukemon.states.LogoScreenState;
 import com.gamejolt.mikykr5.poukemon.states.MainMenuState;
@@ -102,7 +103,7 @@ public class GameCore extends Game {
 		try{
 			states[game_states_t.LOGO_SCREEN.getValue()] = new LogoScreenState(this);
 			states[game_states_t.MAIN_MENU.getValue()] = new MainMenuState(this);
-			states[game_states_t.IN_GAME.getValue()] = null;
+			states[game_states_t.IN_GAME.getValue()] = new InGameState(this);
 			states[game_states_t.LOADING.getValue()] = new LoadingState(this);
 			states[game_states_t.QUIT.getValue()] = null;
 		}catch(IllegalArgumentException e){

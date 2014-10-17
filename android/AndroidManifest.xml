@@ -8,7 +8,7 @@
 
     <application
         android:allowBackup="true"
-        android:icon="@drawable/roselia_launcher"
+        android:icon="@drawable/roselia"
         android:label="@string/app_name"
         android:theme="@style/GdxTheme" >
         <activity

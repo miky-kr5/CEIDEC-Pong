@@ -13,13 +13,12 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon;
+package com.gamejolt.mikykr5.poukemon.ecs.components;
 
-public abstract class ProjectConstants{
-	public static final int     EXIT_SUCCESS               = 0;
-	public static final int     EXIT_FAILURE               = 1;
+import com.badlogic.ashley.core.ComponentMapper;
 
-	public static final boolean DEBUG                      = true;
-
-	public static final int[]   POWERS_OF_2                = {64, 128, 256, 512, 1024, 2048};
+public abstract class Mappers {
+	public static final ComponentMapper<PositionComponent>    position    = ComponentMapper.getFor(PositionComponent.class);
+	public static final ComponentMapper<SpriteComponent>      sprite      = ComponentMapper.getFor(SpriteComponent.class);
+	public static final ComponentMapper<SoundEffectComponent> soundEffect = ComponentMapper.getFor(SoundEffectComponent.class);
 }

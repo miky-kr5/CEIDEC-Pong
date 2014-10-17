@@ -36,9 +36,9 @@ import com.gamejolt.mikykr5.poukemon.utils.CachedFontManager;
 
 public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	// Helper fields.
-	private AsyncAssetLoader loader;
-	private CachedFontManager       fontManager;
-	private boolean                 assetsLoaded;
+	private AsyncAssetLoader  loader;
+	private CachedFontManager fontManager;
+	private boolean           assetsLoaded;
 
 	// Buttons and other GUI components.
 	private TextButton          startButton;

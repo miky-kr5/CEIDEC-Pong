@@ -13,13 +13,18 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon;
+package com.gamejolt.mikykr5.poukemon.ecs.components;
 
-public abstract class ProjectConstants{
-	public static final int     EXIT_SUCCESS               = 0;
-	public static final int     EXIT_FAILURE               = 1;
+import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-	public static final boolean DEBUG                      = true;
+public class PositionComponent extends Component implements Poolable {
+	public int x = 0;
+	public int y = 0;
 
-	public static final int[]   POWERS_OF_2                = {64, 128, 256, 512, 1024, 2048};
+	@Override
+	public void reset() {
+		x = 0;
+		y = 0;
+	}
 }
