@@ -16,23 +16,20 @@
 package com.gamejolt.mikykr5.poukemon.ecs.components;
 
 import com.badlogic.ashley.core.Component;
-import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class SpriteComponent extends Component implements Poolable {
-	public Sprite sprite = null;
+public class VelocityComponent extends Component implements Poolable {
+	public float vx = 0;
+	public float vy = 0;
 
-	public SpriteComponent() {
-		reset();
-	}
-
-	public SpriteComponent(Sprite sprite){
-		this.sprite = sprite;
+	public void setXY(float vx, float vy){
+		this.vx = vx;
+		this.vy = vy;
 	}
 
 	@Override
 	public void reset() {
-		if(sprite != null)
-			sprite = null;
+		vx = 0;
+		vy = 0;
 	}
 }

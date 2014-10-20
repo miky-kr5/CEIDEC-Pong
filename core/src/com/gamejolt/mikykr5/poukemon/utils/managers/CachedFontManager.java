@@ -13,7 +13,7 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon.utils;
+package com.gamejolt.mikykr5.poukemon.utils.managers;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -78,6 +78,13 @@ public class CachedFontManager{
 		fontGenerator.dispose();
 
 		return font;
+	}
+
+	public void unloadFont(String path){
+		if(fonts.containsKey(path)){
+			fonts.get(path).dispose();
+			fonts.remove(path);
+		}
 	}
 
 	private void dispose(){

@@ -32,7 +32,7 @@ import com.gamejolt.mikykr5.poukemon.GameCore.game_states_t;
 import com.gamejolt.mikykr5.poukemon.effects.ScrollingBackground;
 import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 import com.gamejolt.mikykr5.poukemon.utils.AsyncAssetLoader;
-import com.gamejolt.mikykr5.poukemon.utils.CachedFontManager;
+import com.gamejolt.mikykr5.poukemon.utils.managers.CachedFontManager;
 
 public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	// Helper fields.

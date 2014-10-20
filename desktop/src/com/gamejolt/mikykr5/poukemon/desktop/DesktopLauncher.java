@@ -25,7 +25,7 @@ public class DesktopLauncher {
 
 		config.width = 1024;
 		config.height = 768;
-		config.resizable = false;
+		config.resizable = true;
 		config.title = "PouKémon";
 
 		new LwjglApplication(new GameCore(), config);

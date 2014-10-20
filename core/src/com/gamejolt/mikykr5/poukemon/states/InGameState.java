@@ -19,12 +19,15 @@ import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.graphics.GL20;
+import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.gamejolt.mikykr5.poukemon.GameCore;
 import com.gamejolt.mikykr5.poukemon.GameCore.game_states_t;
 import com.gamejolt.mikykr5.poukemon.ecs.entities.EntityInitializerBase;
 import com.gamejolt.mikykr5.poukemon.ecs.entities.PoukemonEntityInitializer;
+import com.gamejolt.mikykr5.poukemon.ecs.systems.PositioningSystem;
+import com.gamejolt.mikykr5.poukemon.ecs.systems.RenderingSystem;
 import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 
 public class InGameState extends BaseState implements AssetsLoadedListener{
@@ -37,6 +40,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	private int                   w;
 	private final float           oldRatio;
 	private boolean               assetsLoaded;
+	private OrthographicCamera    fbCamera;
 
 	public InGameState(final GameCore core) throws IllegalArgumentException{
 		super(core);
@@ -46,9 +50,13 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		w = Gdx.graphics.getWidth();
 		oldRatio = aspectRatio(FB_WIDTH, FB_HEIGHT);
 		assetsLoaded = false;
+		fbCamera = new OrthographicCamera(FB_WIDTH, FB_HEIGHT);
 
 		entityInitializer = new PoukemonEntityInitializer();
 		entityInitializer.createAllEntities(engine);
+
+		engine.addSystem(new PositioningSystem());
+		engine.addSystem(new RenderingSystem(core.batch));
 	}
 
 	@Override
@@ -56,9 +64,6 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		float x, y, renderW, renderH;
 
 		if(assetsLoaded){
-			// Update the game using the ECS pattern.
-			engine.update(delta);
-
 			// Clear the screen.
 			Gdx.gl.glClearColor(0, 0, 0, 1);
 			Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
@@ -67,6 +72,13 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 			frameBuffer.begin();{
 				Gdx.gl.glClearColor(0.2f, 0.2f, 0.5f, 1);
 				Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
+
+				// Update the game using the ECS pattern.
+				core.batch.setProjectionMatrix(fbCamera.combined);
+				core.batch.begin();{
+					engine.update(delta);
+				}core.batch.end();
+
 			}frameBuffer.end();
 
 			// Scale the frame buffer to the current screen size.
@@ -78,8 +90,9 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 			y = -(renderH / 2.0f);
 
 			// Render the frame buffer applying screen effects if needed.
+			core.batch.setProjectionMatrix(pixelPerfectCamera.combined);
 			core.batch.begin();{
-				core.batch.draw(frameBuffer.getColorBufferTexture(), x, y, renderW, renderH);
+				core.batch.draw(frameBuffer.getColorBufferTexture(), x, y, renderW, renderH, 0, 0, FB_WIDTH, FB_HEIGHT, false, true);
 			}core.batch.end();
 		}
 	}
@@ -87,6 +100,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	@Override
 	public void dispose(){
 		frameBuffer.dispose();
+		entityInitializer.dispose();
 		engine.removeAllEntities();
 	}
 
@@ -121,6 +135,12 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		return false;
 	}
 
+	@Override
+	public void onAssetsLoaded() {
+		entityInitializer.setLoadableAssets(engine);
+		assetsLoaded = true;
+	}
+
 	/**
 	 * Calculates the aspect ratio of a given width and height.
 	 * 
@@ -130,11 +150,5 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	 */
 	private float aspectRatio(float w, float h){
 		return w / h;
-	}
-
-	@Override
-	public void onAssetsLoaded() {
-		entityInitializer.setLoadableAssets(engine);
-		assetsLoaded = true;
 	}
 }

@@ -16,9 +16,9 @@
 package com.gamejolt.mikykr5.poukemon.ecs.entities;
 
 import com.badlogic.ashley.core.PooledEngine;
+import com.badlogic.gdx.utils.Disposable;
 
-public abstract class EntityInitializerBase{
+public abstract class EntityInitializerBase implements Disposable{
 	public abstract void createAllEntities(PooledEngine engine);
 	public abstract void setLoadableAssets(PooledEngine engine) throws IllegalStateException;
-	public abstract void disposeAssets(PooledEngine engine) throws IllegalStateException;
 }

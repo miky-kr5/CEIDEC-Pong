@@ -19,8 +19,13 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class PositionComponent extends Component implements Poolable {
-	public int x = 0;
-	public int y = 0;
+	public float x = 0;
+	public float y = 0;
+
+	public void setXY(float x, float y){
+		this.x = x;
+		this.y = y;
+	}
 
 	@Override
 	public void reset() {

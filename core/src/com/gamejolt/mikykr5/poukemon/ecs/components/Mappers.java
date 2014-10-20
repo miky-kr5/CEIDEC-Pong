@@ -18,7 +18,8 @@ package com.gamejolt.mikykr5.poukemon.ecs.components;
 import com.badlogic.ashley.core.ComponentMapper;
 
 public abstract class Mappers {
-	public static final ComponentMapper<PositionComponent>    position    = ComponentMapper.getFor(PositionComponent.class);
-	public static final ComponentMapper<SpriteComponent>      sprite      = ComponentMapper.getFor(SpriteComponent.class);
-	public static final ComponentMapper<SoundEffectComponent> soundEffect = ComponentMapper.getFor(SoundEffectComponent.class);
+	public static final ComponentMapper<PositionComponent>    positionMapper    = ComponentMapper.getFor(PositionComponent.class);
+	public static final ComponentMapper<VelocityComponent>    velocityMapper    = ComponentMapper.getFor(VelocityComponent.class);
+	public static final ComponentMapper<SoundEffectComponent> soundEffectMapper = ComponentMapper.getFor(SoundEffectComponent.class);
+	public static final ComponentMapper<TextureComponent>     textureMapper     = ComponentMapper.getFor(TextureComponent.class);
 }
