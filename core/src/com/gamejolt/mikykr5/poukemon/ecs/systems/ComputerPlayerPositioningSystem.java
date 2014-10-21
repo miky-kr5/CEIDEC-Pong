@@ -19,21 +19,37 @@ import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.gamejolt.mikykr5.poukemon.ecs.components.Mappers;
+import com.gamejolt.mikykr5.poukemon.ecs.components.PlayerComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PositionComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.VelocityComponent;
 
-public class PositioningSystem extends IteratingSystem{
+public class ComputerPlayerPositioningSystem extends IteratingSystem {
 	@SuppressWarnings("unchecked")
-	public PositioningSystem(){
-		super(Family.getFor(PositionComponent.class, VelocityComponent.class));
+	public ComputerPlayerPositioningSystem() {
+		super(Family.getFor(PlayerComponent.class, VelocityComponent.class, PositionComponent.class));
 	}
 
 	@Override
-	public void processEntity(Entity entity, float deltaTime){
-		PositionComponent position = Mappers.positionMapper.get(entity);
-		VelocityComponent velocity = Mappers.velocityMapper.get(entity);
+	public void processEntity(Entity entity, float deltaTime) {
+		InterSystemMessage message;
+		VelocityComponent  velocity = Mappers.velocityMapper.get(entity);
+		PositionComponent  position = Mappers.positionMapper.get(entity);
+		PlayerComponent    player   = Mappers.playerMapper.get(entity);
 
-		position.x += velocity.vx * deltaTime;
-		position.y += velocity.vy * deltaTime;
+		if(player.id == 1){
+			while((message = InterSystemMessagingQueue.popMessage(ComputerPlayerPositioningSystem.class.getCanonicalName())) != null){
+				float ballY;
+
+				if(message.data.containsKey("BALL_Y")){
+					ballY = (Float) message.data.get("BALL_Y");
+
+					if(ballY > position.y){
+						velocity.vy = 550.0f;
+					}else if (ballY < position.y){
+						velocity.vy = -550.0f;
+					}
+				}
+			}
+		}
 	}
 }

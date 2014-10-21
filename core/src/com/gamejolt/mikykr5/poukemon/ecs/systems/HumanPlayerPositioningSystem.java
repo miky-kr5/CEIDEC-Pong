@@ -18,31 +18,31 @@ package com.gamejolt.mikykr5.poukemon.ecs.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
-import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.gamejolt.mikykr5.poukemon.ecs.components.Mappers;
+import com.gamejolt.mikykr5.poukemon.ecs.components.PlayerComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PositionComponent;
-import com.gamejolt.mikykr5.poukemon.ecs.components.SpriteComponent;
 
-public class RenderingSystem extends IteratingSystem{
-	private final SpriteBatch batch;
-
+public class HumanPlayerPositioningSystem extends IteratingSystem {
 	@SuppressWarnings("unchecked")
-	public RenderingSystem(SpriteBatch batch){
-		super(Family.getFor(PositionComponent.class, SpriteComponent.class));
-
-		this.batch = batch;
+	public HumanPlayerPositioningSystem() {
+		super(Family.getFor(PlayerComponent.class, PositionComponent.class));
 	}
 
 	@Override
-	public void processEntity(Entity entity, float deltaTime) throws IllegalStateException{
+	public void processEntity(Entity entity, float deltaTime) {
+		InterSystemMessage message;
 		PositionComponent position = Mappers.positionMapper.get(entity);
-		SpriteComponent   sprite   = Mappers.spriteMapper.get(entity);
+		PlayerComponent   player   = Mappers.playerMapper.get(entity);
 
-		if(!batch.isDrawing())
-			throw new IllegalStateException("Sprite batch did not call begin before processing entites.");
+		if(player.id == 0){
+			while((message = InterSystemMessagingQueue.popMessage(HumanPlayerPositioningSystem.class.getCanonicalName())) != null){
+				float playerY;
 
-		if(sprite.sprite != null){
-			batch.draw(sprite.sprite, position.x, position.y);
+				if(message.data.containsKey("INPUT_Y")){
+					playerY = (Float) message.data.get("INPUT_Y");
+					position.y = playerY;
+				}
+			}
 		}
 	}
 }

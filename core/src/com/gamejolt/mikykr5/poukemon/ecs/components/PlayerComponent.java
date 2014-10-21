@@ -13,21 +13,16 @@
  *
  * Read the LICENSE file for more details.
  */
-package com.gamejolt.mikykr5.poukemon.desktop;
+package com.gamejolt.mikykr5.poukemon.ecs.components;
 
-import com.badlogic.gdx.backends.lwjgl.LwjglApplication;
-import com.badlogic.gdx.backends.lwjgl.LwjglApplicationConfiguration;
-import com.gamejolt.mikykr5.poukemon.GameCore;
+import com.badlogic.ashley.core.Component;
+import com.badlogic.gdx.utils.Pool.Poolable;
 
-public class DesktopLauncher {
-	public static void main (String[] arg) {
-		LwjglApplicationConfiguration config = new LwjglApplicationConfiguration();
+public class PlayerComponent extends Component implements Poolable {
+	public int id = -1;
 
-		config.width = 1024;
-		config.height = 768;
-		config.resizable = true;
-		config.title = "CEIDEC-Pong";
-
-		new LwjglApplication(new GameCore(), config);
+	@Override
+	public void reset() {
+		id = -1;
 	}
 }

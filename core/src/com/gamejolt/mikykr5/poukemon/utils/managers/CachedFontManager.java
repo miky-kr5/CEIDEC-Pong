@@ -88,6 +88,8 @@ public class CachedFontManager{
 	}
 
 	private void dispose(){
+		Gdx.app.log("FONT_MANAGER", "Disposing fonts.");
+
 		for(BitmapFont font : fonts.values())
 			font.dispose();
 

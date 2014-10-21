@@ -104,7 +104,7 @@ public abstract class BaseState implements Screen, InputProcessor{
 	 * @param screenX The x coordinate in window space.
 	 * @param screenY The y coordinate in window space.
 	 */
-	protected final void unprojectTouch(int screenX, int screenY){
+	protected void unprojectTouch(int screenX, int screenY){
 		win2world.set(screenX, screenY, 0.0f);
 		pixelPerfectCamera.unproject(win2world);
 		touchPointWorldCoords.set(win2world.x, win2world.y);

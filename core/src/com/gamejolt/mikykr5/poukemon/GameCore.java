@@ -92,7 +92,7 @@ public class GameCore extends Game {
 		pixmap.dispose();
 
 		alpha   = new MutableFloat(1.0f);
-		fadeOut = Tween.to(alpha, 0, 2.5f).target(1.0f).ease(TweenEquations.easeInQuint);
+		fadeOut = Tween.to(alpha, 0, 0.5f).target(1.0f).ease(TweenEquations.easeInQuint);
 		fadeIn  = Tween.to(alpha, 0, 2.5f).target(0.0f).ease(TweenEquations.easeInQuint);
 		fadeIn.start();
 		fading  = true;
@@ -123,10 +123,6 @@ public class GameCore extends Game {
 		currState = game_states_t.LOGO_SCREEN;
 		nextState = null;
 		this.setScreen(states[currState.getValue()]);
-		states[currState.getValue()].onStateEnabled();
-
-		// Set initial input handler.
-		Gdx.input.setInputProcessor(states[currState.getValue()]);
 
 		// Set log level
 		if(ProjectConstants.DEBUG){
@@ -134,7 +130,6 @@ public class GameCore extends Game {
 		}else{
 			Gdx.app.setLogLevel(Application.LOG_NONE);
 		}
-
 	}
 
 	@Override
@@ -159,7 +154,7 @@ public class GameCore extends Game {
 					if(nextState != game_states_t.QUIT){
 						currState = nextState;
 						nextState = null;
-						states[currState.getValue()].onStateEnabled();
+						//states[currState.getValue()].onStateEnabled();
 						setScreen(states[currState.getValue()]);
 					}else{
 						nextState = null;
@@ -184,6 +179,7 @@ public class GameCore extends Game {
 				fading = false;
 				fadeIn.free();
 				fadeIn = Tween.to(alpha, 0, 0.5f).target(0.0f).ease(TweenEquations.easeInQuint);
+				states[currState.getValue()].onStateEnabled();
 			}
 		}
 
