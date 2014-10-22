@@ -18,29 +18,44 @@ package com.gamejolt.mikykr5.poukemon.ecs.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.gamejolt.mikykr5.poukemon.ProjectConstants;
+import com.gamejolt.mikykr5.poukemon.ecs.components.BoundingBoxComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.Mappers;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PlayerComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PositionComponent;
 
 public class HumanPlayerPositioningSystem extends IteratingSystem {
+	private final float screenTopBorder;
+	private final float screenBottomBorder;
+
 	@SuppressWarnings("unchecked")
 	public HumanPlayerPositioningSystem() {
-		super(Family.getFor(PlayerComponent.class, PositionComponent.class));
+		super(Family.getFor(PlayerComponent.class, PositionComponent.class, BoundingBoxComponent.class));
+
+		screenTopBorder = ((float)ProjectConstants.FB_HEIGHT / 2.0f) - 1.0f;
+		screenBottomBorder = -((float)ProjectConstants.FB_HEIGHT / 2.0f);
 	}
 
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
-		InterSystemMessage message;
-		PositionComponent position = Mappers.positionMapper.get(entity);
-		PlayerComponent   player   = Mappers.playerMapper.get(entity);
+		InterSystemMessage   message;
+		PositionComponent    position = Mappers.positionMapper.get(entity);
+		PlayerComponent      player   = Mappers.playerMapper.get(entity);
+		BoundingBoxComponent bounds = Mappers.bboxMapper.get(entity);
 
-		if(player.id == 0){
+		if(player.id == PlayerComponent.HUMAN_PLAYER){
 			while((message = InterSystemMessagingQueue.popMessage(HumanPlayerPositioningSystem.class.getCanonicalName())) != null){
 				float playerY;
 
 				if(message.data.containsKey("INPUT_Y")){
 					playerY = (Float) message.data.get("INPUT_Y");
 					position.y = playerY;
+
+					if(position.y < screenBottomBorder)
+						position.y = screenBottomBorder;
+
+					if(position.y + bounds.bbox.getHeight() >= screenTopBorder)
+						position.y = screenTopBorder - bounds.bbox.getHeight();
 				}
 			}
 		}

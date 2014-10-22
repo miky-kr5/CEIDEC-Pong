@@ -18,15 +18,23 @@ package com.gamejolt.mikykr5.poukemon.ecs.systems;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
+import com.gamejolt.mikykr5.poukemon.ProjectConstants;
+import com.gamejolt.mikykr5.poukemon.ecs.components.BoundingBoxComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.Mappers;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PlayerComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PositionComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.VelocityComponent;
 
 public class ComputerPlayerPositioningSystem extends IteratingSystem {
+	private final float screenTopBorder;
+	private final float screenBottomBorder;
+
 	@SuppressWarnings("unchecked")
 	public ComputerPlayerPositioningSystem() {
-		super(Family.getFor(PlayerComponent.class, VelocityComponent.class, PositionComponent.class));
+		super(Family.getFor(PlayerComponent.class, VelocityComponent.class, PositionComponent.class, BoundingBoxComponent.class));
+
+		screenTopBorder = ((float)ProjectConstants.FB_HEIGHT / 2.0f) - 1.0f;
+		screenBottomBorder = -((float)ProjectConstants.FB_HEIGHT / 2.0f);
 	}
 
 	@Override
@@ -35,19 +43,26 @@ public class ComputerPlayerPositioningSystem extends IteratingSystem {
 		VelocityComponent  velocity = Mappers.velocityMapper.get(entity);
 		PositionComponent  position = Mappers.positionMapper.get(entity);
 		PlayerComponent    player   = Mappers.playerMapper.get(entity);
+		BoundingBoxComponent bounds = Mappers.bboxMapper.get(entity);
 
-		if(player.id == 1){
+		if(player.id == PlayerComponent.COMPUTER_PLAYER){
 			while((message = InterSystemMessagingQueue.popMessage(ComputerPlayerPositioningSystem.class.getCanonicalName())) != null){
 				float ballY;
 
 				if(message.data.containsKey("BALL_Y")){
 					ballY = (Float) message.data.get("BALL_Y");
 
-					if(ballY > position.y){
+					if(ballY > position.y + (bounds.bbox.height / 2.0f)){
 						velocity.vy = 550.0f;
-					}else if (ballY < position.y){
+					}else if (ballY < position.y + (bounds.bbox.height / 2.0f)){
 						velocity.vy = -550.0f;
 					}
+
+					if(position.y < screenBottomBorder)
+						position.y = screenBottomBorder;
+
+					if(position.y + bounds.bbox.getHeight() >= screenTopBorder)
+						position.y = screenTopBorder - bounds.bbox.getHeight();
 				}
 			}
 		}

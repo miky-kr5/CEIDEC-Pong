@@ -15,6 +15,9 @@
  */
 package com.gamejolt.mikykr5.poukemon.ecs.systems;
 
+import java.util.LinkedList;
+import java.util.Queue;
+
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
@@ -29,8 +32,9 @@ import com.gamejolt.mikykr5.poukemon.ecs.components.ScoreComponent;
 import com.gamejolt.mikykr5.poukemon.utils.managers.CachedFontManager;
 
 public class ScoringSystem extends IteratingSystem {
-	private final SpriteBatch batch;
-	private BitmapFont        font;
+	private final SpriteBatch         batch;
+	private BitmapFont                font;
+	private Queue<InterSystemMessage> ignoredMessages;
 
 	@SuppressWarnings("unchecked")
 	public ScoringSystem(final SpriteBatch batch){
@@ -38,6 +42,7 @@ public class ScoringSystem extends IteratingSystem {
 		this.batch = batch;
 		this.font = CachedFontManager.getInstance().loadFont("data/fonts/CRYSTAL-Regular.ttf", 180);
 		CachedFontManager.freeInstance();
+		ignoredMessages = new LinkedList<InterSystemMessage>();
 	}
 
 	@Override
@@ -58,14 +63,16 @@ public class ScoringSystem extends IteratingSystem {
 				if(playerId == player.id){
 					score.score++;
 				}else{
-					InterSystemMessagingQueue.pushMessage(message);
-					break;
+					ignoredMessages.add(message);
 				}
 			}
 		}
 
-		bounds = font.getBounds(String.format("%02d", score.score));
+		for(InterSystemMessage msg : ignoredMessages)
+			InterSystemMessagingQueue.pushMessage(msg);
+		ignoredMessages.clear();
 
+		bounds = font.getBounds(String.format("%02d", score.score));
 		y = (ProjectConstants.FB_HEIGHT / 2.0f) - (bounds.height / 2.0f) - 20;
 		if(player.id == 0){
 			x = -(ProjectConstants.FB_WIDTH / 4.0f) - (bounds.width / 2.0f);

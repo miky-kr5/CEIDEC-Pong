@@ -58,12 +58,12 @@ public class CachedFontManager{
 	}
 
 	public BitmapFont loadFont(String path, int size){
+		if(fonts.containsKey(path))
+			return fonts.get(path);
+
 		FreeTypeFontGenerator fontGenerator;
 		FreeTypeFontParameter fontParameters;
 		BitmapFont font;
-
-		if(fonts.containsKey(path))
-			return fonts.get(path);
 
 		fontParameters = new FreeTypeFontParameter();
 		fontParameters.characters = FONT_CHARS;
@@ -72,7 +72,6 @@ public class CachedFontManager{
 
 		fontGenerator = new FreeTypeFontGenerator(Gdx.files.internal(path));
 		font = fontGenerator.generateFont(fontParameters);
-
 		fonts.put(path, font);
 
 		fontGenerator.dispose();
@@ -92,7 +91,6 @@ public class CachedFontManager{
 
 		for(BitmapFont font : fonts.values())
 			font.dispose();
-
 		fonts.clear();
 	}
 }

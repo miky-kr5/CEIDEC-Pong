@@ -19,6 +19,9 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
 public class PlayerComponent extends Component implements Poolable {
+	public static int HUMAN_PLAYER = 0;
+	public static int COMPUTER_PLAYER = 1;
+
 	public int id = -1;
 
 	@Override

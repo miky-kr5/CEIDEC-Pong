@@ -22,9 +22,8 @@ import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.graphics.Pixmap.Format;
 import com.badlogic.gdx.graphics.glutils.FrameBuffer;
-import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Rectangle;
-import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.gamejolt.mikykr5.poukemon.GameCore;
 import com.gamejolt.mikykr5.poukemon.GameCore.game_states_t;
 import com.gamejolt.mikykr5.poukemon.ProjectConstants;
@@ -38,6 +37,7 @@ import com.gamejolt.mikykr5.poukemon.ecs.systems.InterSystemMessagingQueue;
 import com.gamejolt.mikykr5.poukemon.ecs.systems.PositioningSystem;
 import com.gamejolt.mikykr5.poukemon.ecs.systems.RenderingSystem;
 import com.gamejolt.mikykr5.poukemon.ecs.systems.ScoringSystem;
+import com.gamejolt.mikykr5.poukemon.ecs.systems.SoundSystem;
 import com.gamejolt.mikykr5.poukemon.interfaces.AssetsLoadedListener;
 
 public class InGameState extends BaseState implements AssetsLoadedListener{
@@ -50,7 +50,6 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	private boolean               assetsLoaded;
 	private OrthographicCamera    fbCamera;
 	private Rectangle             fbBounds;
-	private Vector2               fbWoorldCoords;
 
 	public InGameState(final GameCore core) throws IllegalArgumentException{
 		super(core);
@@ -63,19 +62,19 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		oldRatio = aspectRatio(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
 		assetsLoaded = false;
 		fbCamera = new OrthographicCamera(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
-		fbWoorldCoords = new Vector2();
 
 		// Create all entities.
 		entityInitializer = new PongEntityInitializer();
 		entityInitializer.createAllEntities(engine);
 
 		// Add systems in the order they will be processed.
-		engine.addSystem(new PositioningSystem());
-		engine.addSystem(new CollisionDetectionSystem(engine));
 		engine.addSystem(new HumanPlayerPositioningSystem());
 		engine.addSystem(new ComputerPlayerPositioningSystem());
-		engine.addSystem(new ScoringSystem(core.batch));
+		engine.addSystem(new PositioningSystem());
+		engine.addSystem(new CollisionDetectionSystem(engine));
+		engine.addSystem(new SoundSystem());
 		engine.addSystem(new RenderingSystem(core.batch));
+		engine.addSystem(new ScoringSystem(core.batch));
 	}
 
 	@Override
@@ -147,7 +146,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 
 		if(touchInsideFrameBuffer(screenX, screenY)){
 			message = new InterSystemMessage(HumanPlayerPositioningSystem.class.getCanonicalName());
-			message.data.put("INPUT_Y", convertWorldHeightToFrameBufferHeight(touchPointWorldCoords.y));
+			message.data.put("INPUT_Y", convertWorldYToFrameBufferY(screenY));
 			InterSystemMessagingQueue.pushMessage(message);
 		}
 
@@ -160,7 +159,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 
 		if(touchInsideFrameBuffer(screenX, screenY)){
 			message = new InterSystemMessage(HumanPlayerPositioningSystem.class.getCanonicalName());
-			message.data.put("INPUT_Y", convertWorldHeightToFrameBufferHeight(touchPointWorldCoords.y));
+			message.data.put("INPUT_Y", convertWorldYToFrameBufferY(screenY));
 			InterSystemMessagingQueue.pushMessage(message);
 		}
 
@@ -188,15 +187,16 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		}
 	}
 
-	private float convertWorldHeightToFrameBufferHeight(float height){
-		float newHeight, oldHeight, b = (float)ProjectConstants.FB_HEIGHT / (float)h;
+	private float convertWorldYToFrameBufferY(float y){
+		Vector3 vec3 = new Vector3(0, y - Math.abs(fbBounds.y - (-(h/2.0f))), 0);
 
-		oldHeight = height + ((ProjectConstants.FB_HEIGHT / 2.0f) - 1.0f);
-		oldHeight /= (float)h;
-		newHeight = (oldHeight * b) * ProjectConstants.FB_HEIGHT;
-		newHeight -= ProjectConstants.FB_HEIGHT;
+		Gdx.app.log("IN_GAME", "Y before: " + Float.toString(vec3.y));
 
-		return newHeight;
+		fbCamera.unproject(vec3, 0, 0, w, h / oldRatio);
+
+		Gdx.app.log("IN_GAME", "Y after: " + Float.toString(vec3.y));
+
+		return vec3.y;
 	}
 
 	/**

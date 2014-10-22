@@ -15,15 +15,20 @@
  */
 package com.gamejolt.mikykr5.poukemon.ecs.systems;
 
+import com.badlogic.ashley.core.ComponentType;
 import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.Entity;
 import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
+import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Vector2;
 import com.gamejolt.mikykr5.poukemon.ProjectConstants;
 import com.gamejolt.mikykr5.poukemon.ecs.components.BoundingBoxComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.Mappers;
+import com.gamejolt.mikykr5.poukemon.ecs.components.PlayerComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.PositionComponent;
+import com.gamejolt.mikykr5.poukemon.ecs.components.SoundComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.SpriteComponent;
 import com.gamejolt.mikykr5.poukemon.ecs.components.VelocityComponent;
 
@@ -33,10 +38,12 @@ public class CollisionDetectionSystem extends IteratingSystem {
 	private final float            screenRightBorder;
 	private final float            screenTopBorder;
 	private final float            screenBottomBorder;
+	private final Vector2          randomVector = new Vector2();
 
 	@SuppressWarnings("unchecked")
 	public CollisionDetectionSystem(Engine engine){
-		super(Family.getFor(PositionComponent.class, BoundingBoxComponent.class, VelocityComponent.class));
+		//super(Family.getFor(PositionComponent.class, BoundingBoxComponent.class, VelocityComponent.class));
+		super(Family.getFor(ComponentType.getBitsFor(PositionComponent.class, BoundingBoxComponent.class, VelocityComponent.class), ComponentType.getBitsFor(), ComponentType.getBitsFor(PlayerComponent.class)));
 
 		collidables = engine.getEntitiesFor(Family.getFor(BoundingBoxComponent.class));
 		screenLeftBorder = -((float)ProjectConstants.FB_WIDTH / 2.0f);
@@ -47,10 +54,11 @@ public class CollisionDetectionSystem extends IteratingSystem {
 
 	@Override
 	public void processEntity(Entity entity, float deltaTime){
-		InterSystemMessage message;
+		InterSystemMessage   message;
 		PositionComponent    position = Mappers.positionMapper.get(entity);
 		BoundingBoxComponent bounds   = Mappers.bboxMapper.get(entity);
 		VelocityComponent    velocity = Mappers.velocityMapper.get(entity);
+		SoundComponent       sound    = Mappers.soundMapper.get(entity);
 
 		// Check if this entity is within the screen.
 		// If the entity collides with any of the borders then bounce or score as needed.
@@ -62,6 +70,10 @@ public class CollisionDetectionSystem extends IteratingSystem {
 			message = new InterSystemMessage(ScoringSystem.class.getCanonicalName());
 			message.data.put("SCORE", 1);
 			InterSystemMessagingQueue.pushMessage(message);
+
+			message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+			message.data.put("PLAY", "data/sfx/atari_boom.ogg");
+			InterSystemMessagingQueue.pushMessage(message);
 		}
 
 		if(position.x + bounds.bbox.getWidth() >= screenRightBorder){
@@ -72,18 +84,32 @@ public class CollisionDetectionSystem extends IteratingSystem {
 			message = new InterSystemMessage(ScoringSystem.class.getCanonicalName());
 			message.data.put("SCORE", 0);
 			InterSystemMessagingQueue.pushMessage(message);
+
+			message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+			message.data.put("PLAY", "data/sfx/oh_yeah_wav_cut.ogg");
+			InterSystemMessagingQueue.pushMessage(message);
 		}
 
 		if(position.y < screenBottomBorder){
 			position.y = screenBottomBorder;
 			velocity.vy = velocity.vy < 0.0f ? -velocity.vy : velocity.vy;
 			accelerate(velocity);
+			if(sound != null){
+				message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+				message.data.put("PLAY", sound.path);
+				InterSystemMessagingQueue.pushMessage(message);
+			}
 		}
 
 		if(position.y + bounds.bbox.getHeight() >= screenTopBorder){
 			position.y = screenTopBorder - bounds.bbox.getHeight();
 			velocity.vy = velocity.vy > 0.0f ? -velocity.vy : velocity.vy;
 			accelerate(velocity);
+			if(sound != null){
+				message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+				message.data.put("PLAY", sound.path);
+				InterSystemMessagingQueue.pushMessage(message);
+			}
 		}
 
 		for(int i = 0; i < collidables.size(); i++){
@@ -108,7 +134,8 @@ public class CollisionDetectionSystem extends IteratingSystem {
 		SpriteComponent   sprite   = Mappers.spriteMapper.get(entity);
 		VelocityComponent velocity = Mappers.velocityMapper.get(entity);
 
-		velocity.setXY(173, -475);
+		randomVector.set(Vector2.X).setAngle(MathUtils.random(0, 360));
+		velocity.setXY(randomVector.x * -475, randomVector.y * 475);
 
 		if(position != null){
 			if(sprite != null){
