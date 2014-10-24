@@ -39,11 +39,11 @@ public class ComputerPlayerPositioningSystem extends IteratingSystem {
 
 	@Override
 	public void processEntity(Entity entity, float deltaTime) {
-		InterSystemMessage message;
-		VelocityComponent  velocity = Mappers.velocityMapper.get(entity);
-		PositionComponent  position = Mappers.positionMapper.get(entity);
-		PlayerComponent    player   = Mappers.playerMapper.get(entity);
-		BoundingBoxComponent bounds = Mappers.bboxMapper.get(entity);
+		InterSystemMessage   message;
+		VelocityComponent    velocity = Mappers.velocityMapper.get(entity);
+		PositionComponent    position = Mappers.positionMapper.get(entity);
+		PlayerComponent      player   = Mappers.playerMapper.get(entity);
+		BoundingBoxComponent bounds   = Mappers.bboxMapper.get(entity);
 
 		if(player.id == PlayerComponent.COMPUTER_PLAYER){
 			while((message = InterSystemMessagingQueue.popMessage(ComputerPlayerPositioningSystem.class.getCanonicalName())) != null){

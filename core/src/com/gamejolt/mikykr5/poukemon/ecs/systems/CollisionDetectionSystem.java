@@ -22,6 +22,7 @@ import com.badlogic.ashley.core.Family;
 import com.badlogic.ashley.systems.IteratingSystem;
 import com.badlogic.ashley.utils.ImmutableArray;
 import com.badlogic.gdx.math.MathUtils;
+import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector2;
 import com.gamejolt.mikykr5.poukemon.ProjectConstants;
 import com.gamejolt.mikykr5.poukemon.ecs.components.BoundingBoxComponent;
@@ -42,7 +43,6 @@ public class CollisionDetectionSystem extends IteratingSystem {
 
 	@SuppressWarnings("unchecked")
 	public CollisionDetectionSystem(Engine engine){
-		//super(Family.getFor(PositionComponent.class, BoundingBoxComponent.class, VelocityComponent.class));
 		super(Family.getFor(ComponentType.getBitsFor(PositionComponent.class, BoundingBoxComponent.class, VelocityComponent.class), ComponentType.getBitsFor(), ComponentType.getBitsFor(PlayerComponent.class)));
 
 		collidables = engine.getEntitiesFor(Family.getFor(BoundingBoxComponent.class));
@@ -63,8 +63,6 @@ public class CollisionDetectionSystem extends IteratingSystem {
 		// Check if this entity is within the screen.
 		// If the entity collides with any of the borders then bounce or score as needed.
 		if(position.x < screenLeftBorder){
-			position.x = screenLeftBorder;
-			velocity.vx = velocity.vx < 0.0f ? -velocity.vx : velocity.vx;
 			resetEntity(entity);
 
 			message = new InterSystemMessage(ScoringSystem.class.getCanonicalName());
@@ -77,8 +75,6 @@ public class CollisionDetectionSystem extends IteratingSystem {
 		}
 
 		if(position.x + bounds.bbox.getWidth() >= screenRightBorder){
-			position.x = screenRightBorder - bounds.bbox.getWidth();
-			velocity.vx = velocity.vx > 0.0f ? -velocity.vx : velocity.vx;
 			resetEntity(entity);
 
 			message = new InterSystemMessage(ScoringSystem.class.getCanonicalName());
@@ -113,9 +109,39 @@ public class CollisionDetectionSystem extends IteratingSystem {
 		}
 
 		for(int i = 0; i < collidables.size(); i++){
+			BoundingBoxComponent collidable;
+			PositionComponent    colPosition;
+
 			if(collidables.get(i).getIndex() == entity.getIndex()){
 				continue;
 			}else{
+				collidable = Mappers.bboxMapper.get(collidables.get(i));
+				colPosition = Mappers.positionMapper.get(collidables.get(i));
+				if(colPosition == null)
+					continue;
+
+				bounds.bbox.setPosition(position.x, position.y);
+				collidable.bbox.setPosition(colPosition.x, colPosition.y);
+
+				if(collidesLeft(bounds.bbox, collidable.bbox)){
+					velocity.vx = velocity.vx < 0.0f ? -velocity.vx : velocity.vx;
+					accelerate(velocity);
+
+					if(sound != null){
+						message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+						message.data.put("PLAY", sound.path);
+						InterSystemMessagingQueue.pushMessage(message);
+					}
+				}else if(collidesRight(bounds.bbox, collidable.bbox)){
+					velocity.vx = velocity.vx > 0.0f ? -velocity.vx : velocity.vx;
+					accelerate(velocity);
+
+					if(sound != null){
+						message = new InterSystemMessage(SoundSystem.class.getCanonicalName());
+						message.data.put("PLAY", sound.path);
+						InterSystemMessagingQueue.pushMessage(message);
+					}
+				}
 			}
 		}
 
@@ -129,13 +155,35 @@ public class CollisionDetectionSystem extends IteratingSystem {
 		velocity.vy *= 1.03f;
 	}
 
-	private void resetEntity(Entity entity){
-		PositionComponent position = Mappers.positionMapper.get(entity);
-		SpriteComponent   sprite   = Mappers.spriteMapper.get(entity);
-		VelocityComponent velocity = Mappers.velocityMapper.get(entity);
+	private boolean collidesLeft(Rectangle a, Rectangle b){
+		float leftBottomCornerY, leftTopCornerY, leftCenterY;
 
-		randomVector.set(Vector2.X).setAngle(MathUtils.random(0, 360));
-		velocity.setXY(randomVector.x * -475, randomVector.y * 475);
+		leftBottomCornerY = a.y;
+		leftTopCornerY = a.y + a.height;
+		leftCenterY = a.y + (a.height / 2);
+
+		return b.contains(a.x, leftBottomCornerY) || b.contains(a.x, leftTopCornerY) || b.contains(a.x, leftCenterY);
+	}
+
+	private boolean collidesRight(Rectangle a, Rectangle b){
+		float x, rightBottomCornerY, rightTopCornerY, rightCenterY;
+
+		x = a.x + a.width;
+		rightBottomCornerY = a.y;
+		rightTopCornerY = a.y + a.height;
+		rightCenterY = a.y + (a.height / 2);
+
+		return b.contains(x, rightBottomCornerY) || b.contains(x, rightTopCornerY) || b.contains(x, rightCenterY);
+	}
+
+	private void resetEntity(Entity entity){
+		PositionComponent position     = Mappers.positionMapper.get(entity);
+		SpriteComponent   sprite       = Mappers.spriteMapper.get(entity);
+		VelocityComponent velocity     = Mappers.velocityMapper.get(entity);
+		int               randomSign   = MathUtils.random(-1, 1) >= 0 ? 1 : -1;
+
+		randomVector.set(Vector2.X).setAngle(MathUtils.random(-60, 60));
+		velocity.setXY(randomVector.x * -475 * randomSign, randomVector.y * 475 * randomSign);
 
 		if(position != null){
 			if(sprite != null){

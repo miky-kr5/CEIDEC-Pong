@@ -109,7 +109,8 @@ public class PongEntityInitializer extends EntityInitializerBase {
 		if(!entitiesCreated)
 			throw new IllegalStateException("Entities have not been created before setting assets.");
 
-		Vector2      randomVector = new Vector2().set(Vector2.X).setAngle(MathUtils.random(0, 360));
+		Vector2      randomVector = new Vector2().set(Vector2.X).setAngle(MathUtils.random(-60, 60));
+		int          randomSign   = MathUtils.random(-1, 1) >= 0 ? 1 : -1;
 		TextureAtlas atlas        = loader.getAsset("data/gfx/textures/pong_atlas.atlas", TextureAtlas.class);
 		Texture      bckg         = loader.getAsset("data/gfx/textures/bckg.png", Texture.class);
 
@@ -121,7 +122,7 @@ public class PongEntityInitializer extends EntityInitializerBase {
 
 		Mappers.spriteMapper.get(ball).sprite = atlas.createSprite("ball");
 		Mappers.positionMapper.get(ball).setXY(-(Mappers.spriteMapper.get(ball).sprite.getWidth() / 2), -(Mappers.spriteMapper.get(ball).sprite.getHeight() / 2));
-		Mappers.velocityMapper.get(ball).setXY(randomVector.x * 475.0f, randomVector.y * 475.0f);
+		Mappers.velocityMapper.get(ball).setXY(randomVector.x * 475.0f * randomSign, randomVector.y * 475.0f * randomSign);
 		Mappers.bboxMapper.get(ball).bbox.set(Mappers.spriteMapper.get(ball).sprite.getBoundingRectangle());
 		Mappers.soundMapper.get(ball).path = "data/sfx/BounceYoFrankie.ogg";
 
