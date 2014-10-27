@@ -25,8 +25,8 @@ import com.badlogic.gdx.graphics.glutils.FrameBuffer;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.math.Vector3;
 import com.gamejolt.mikykr5.ceidecpong.GameCore;
-import com.gamejolt.mikykr5.ceidecpong.ProjectConstants;
 import com.gamejolt.mikykr5.ceidecpong.GameCore.game_states_t;
+import com.gamejolt.mikykr5.ceidecpong.ProjectConstants;
 import com.gamejolt.mikykr5.ceidecpong.ecs.entities.EntityInitializerBase;
 import com.gamejolt.mikykr5.ceidecpong.ecs.entities.PongEntityInitializer;
 import com.gamejolt.mikykr5.ceidecpong.ecs.systems.CollisionDetectionSystem;
@@ -50,6 +50,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	private boolean               assetsLoaded;
 	private OrthographicCamera    fbCamera;
 	private Rectangle             fbBounds;
+	private final Vector3         temp;
 
 	public InGameState(final GameCore core) throws IllegalArgumentException{
 		super(core);
@@ -62,6 +63,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		oldRatio = aspectRatio(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
 		assetsLoaded = false;
 		fbCamera = new OrthographicCamera(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
+		temp = new Vector3();
 
 		// Create all entities.
 		entityInitializer = new PongEntityInitializer();
@@ -189,10 +191,10 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 
 	private float convertWorldYToFrameBufferY(float y){
 		float fbH = h / oldRatio;
-		Vector3 vec3 = new Vector3(0, y + (fbH / 2.0f), 0);
-		fbCamera.unproject(vec3, 0, 0, w, fbH);
+		temp.set(0, y + (fbH / 2.0f), 0);
+		fbCamera.unproject(temp, 0, 0, w, fbH);
 
-		return vec3.y;
+		return temp.y;
 	}
 
 	/**
