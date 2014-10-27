@@ -37,10 +37,27 @@ import com.gamejolt.mikykr5.ceidecpong.states.LogoScreenState;
 import com.gamejolt.mikykr5.ceidecpong.states.MainMenuState;
 import com.gamejolt.mikykr5.ceidecpong.utils.AsyncAssetLoader;
 
+/**
+ * This is the central class of the Game. It is in charge of maintaining the game's
+ * life cycle and switching between the different application states. It also renders
+ * the fade effects when switching states.
+ * 
+ * @author Miguel Astor
+ */
 public class GameCore extends Game {
+	/**
+	 * Tag used for logging.
+	 */
 	private static final String TAG = "GAME_CORE";
+
+	/**
+	 * Class name used for logging.
+	 */
 	private static final String CLASS_NAME = GameCore.class.getSimpleName();
 
+	/**
+	 * An enumerated type used for state switching.
+	 */
 	public enum game_states_t {
 		LOGO_SCREEN(0), MAIN_MENU(1), IN_GAME(2), QUIT(3), LOADING(4);
 
@@ -59,18 +76,55 @@ public class GameCore extends Game {
 		}
 	};
 
+	/**
+	 * A pointer to the currently active state.
+	 */
 	private game_states_t currState;
+
+	/**
+	 * A pointer to the state to switch to. Usually null.
+	 */
 	public game_states_t nextState;
+
+	/**
+	 * An array to hold all application states.
+	 */
 	private BaseState[] states;
 
+	/**
+	 * The {@link SpriteBatch} used to render all 2D graphics in the game.
+	 */
 	public SpriteBatch batch;
+
+	/**
+	 * A pixel perfect camera used to render the fade effects.
+	 */
 	private OrthographicCamera pixelPerfectCamera;
 
 	// Fade in/out effect fields.
+	/**
+	 * The fade graphic.
+	 */
 	private Texture fadeTexture;
+
+	/**
+	 * A {@link MutableFloat} used to interpolate the transparency of {@link GameCore#fadeTexture}.
+	 */
 	private MutableFloat alpha;
+
+	/**
+	 * A {@link Tween} instance used to interpolate between full transparency to no transparency.
+	 */
 	private Tween fadeOut;
+
+	/**
+	 * A {@link Tween} instance used to interpolate between no transparency to full transparency.
+	 */
 	private Tween fadeIn;
+
+	/**
+	 * A flag to indicate that a fade effect is in progress.
+	 */
 	private boolean fading;
 
 	@Override
@@ -78,7 +132,7 @@ public class GameCore extends Game {
 		AsyncAssetLoader loader = AsyncAssetLoader.getInstance();
 
 		// Set up rendering fields and settings.
-		ShaderProgram.pedantic = false;
+		ShaderProgram.pedantic = false; // Not passing all variables to a shader will not close the game.
 		batch = new SpriteBatch();
 		batch.enableBlending();
 		batch.setBlendFunction(GL20.GL_SRC_ALPHA, GL20.GL_ONE_MINUS_SRC_ALPHA);
@@ -91,6 +145,7 @@ public class GameCore extends Game {
 		fadeTexture = new Texture(pixmap);
 		pixmap.dispose();
 
+		// Create the initial interpolators and start with a fade in effect.
 		alpha   = new MutableFloat(1.0f);
 		fadeOut = Tween.to(alpha, 0, 0.5f).target(1.0f).ease(TweenEquations.easeInQuint);
 		fadeIn  = Tween.to(alpha, 0, 2.5f).target(0.0f).ease(TweenEquations.easeInQuint);
@@ -112,6 +167,7 @@ public class GameCore extends Game {
 			return;
 		}
 
+		// Register every state as an AssetsLoadedListener if the state implements the interface.
 		for(BaseState state : states){
 			if(state != null && state instanceof AssetsLoadedListener)
 				loader.addListener((AssetsLoadedListener)state);
@@ -138,6 +194,7 @@ public class GameCore extends Game {
 
 		// If the current state set a value for nextState then switch to that state.
 		if(nextState != null){
+			// First disable the current state so that it will no longer catch user inputs.
 			states[currState.getValue()].onStateDisabled();
 
 			if(!fadeOut.isStarted()){
@@ -198,12 +255,13 @@ public class GameCore extends Game {
 	public void dispose(){
 		super.dispose();
 
-		// Dispose screens.
+		// Dispose all states.
 		for(BaseState state : states){
 			if(state != null)
 				state.dispose();
 		}
 
+		// Dispose other graphics.
 		fadeTexture.dispose();
 		batch.dispose();
 	}

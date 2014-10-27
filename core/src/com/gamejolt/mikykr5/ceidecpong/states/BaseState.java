@@ -19,19 +19,53 @@ import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.InputProcessor;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.g2d.SpriteBatch;
 import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Vector3;
 import com.gamejolt.mikykr5.ceidecpong.GameCore;
 
+/**
+ * Base class for all the game states.
+ * 
+ * @author Miguel Astor
+ */
 public abstract class BaseState implements Screen, InputProcessor{
+	/**
+	 * Class used for logging.
+	 */
 	private static final String CLASS_NAME = BaseState.class.getSimpleName();
 
+	/**
+	 * A {@link GameCore} instance to use it's {@link SpriteBatch}
+	 */
 	protected GameCore core;
+	
+	/**
+	 * A flag to indicate that the state is the currently active state.
+	 */
 	protected boolean stateEnabled;
+	
+	/**
+	 * A pixel perfect camera used to render all 2D assets for a concrete state instance.
+	 */
 	protected OrthographicCamera pixelPerfectCamera;
-	protected Vector3 win2world;
-	protected Vector2 touchPointWorldCoords;
+	
+	/**
+	 * An auxiliary vector used to convert screen coordinates to world coordinates.
+	 */
+	protected final Vector3 win2world;
+	
+	/**
+	 * An auxiliary vector used to hold the unprojected world coordinates of a touch or click.
+	 */
+	protected final Vector2 touchPointWorldCoords;
 
+	/**
+	 * Sets up all the general state fields.
+	 * 
+	 * @param core The game core.
+	 * @throws IllegalArgumentException If core is null.
+	 */
 	public BaseState(final GameCore core) throws IllegalArgumentException{
 		if(core == null)
 			throw new IllegalArgumentException(CLASS_NAME + ": Core is null.");

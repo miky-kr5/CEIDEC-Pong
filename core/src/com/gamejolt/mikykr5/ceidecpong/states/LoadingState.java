@@ -77,7 +77,6 @@ public class LoadingState extends BaseState{
 
 		if(!loadingDone && loader != null){
 			if(loader.loadAssets()){
-				loader.notifyListeners();
 				loadingDone = true;
 			}
 		}

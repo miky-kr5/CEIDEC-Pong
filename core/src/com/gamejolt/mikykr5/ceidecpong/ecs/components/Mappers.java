@@ -17,10 +17,14 @@ package com.gamejolt.mikykr5.ceidecpong.ecs.components;
 
 import com.badlogic.ashley.core.ComponentMapper;
 
+/**
+ * A holder class for all {@link ComponentMapper} instances used by the game.
+ * 
+ * @author Miguel Astor
+ */
 public abstract class Mappers {
 	public static final ComponentMapper<PositionComponent>    positionMapper    = ComponentMapper.getFor(PositionComponent.class);
 	public static final ComponentMapper<VelocityComponent>    velocityMapper    = ComponentMapper.getFor(VelocityComponent.class);
-	public static final ComponentMapper<TextureComponent>     textureMapper     = ComponentMapper.getFor(TextureComponent.class);
 	public static final ComponentMapper<SpriteComponent>      spriteMapper      = ComponentMapper.getFor(SpriteComponent.class);
 	public static final ComponentMapper<BoundingBoxComponent> bboxMapper        = ComponentMapper.getFor(BoundingBoxComponent.class);
 	public static final ComponentMapper<ScoreComponent>       scoreMapper       = ComponentMapper.getFor(ScoreComponent.class);

@@ -15,6 +15,7 @@
  */
 package com.gamejolt.mikykr5.ceidecpong.states;
 
+import com.badlogic.ashley.core.Engine;
 import com.badlogic.ashley.core.PooledEngine;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
@@ -40,30 +41,84 @@ import com.gamejolt.mikykr5.ceidecpong.ecs.systems.messaging.InterSystemMessage;
 import com.gamejolt.mikykr5.ceidecpong.ecs.systems.messaging.InterSystemMessagingQueue;
 import com.gamejolt.mikykr5.ceidecpong.interfaces.AssetsLoadedListener;
 
+/**
+ * The state in charge of executing and handling the game itself.
+ * 
+ * @author Miguel Astor
+ */
 public class InGameState extends BaseState implements AssetsLoadedListener{
+	/**
+	 * The {@link Engine} responsible for handling the ECS design pattern.
+	 */
 	private PooledEngine          engine;
+
+	/**
+	 * The entity creator.
+	 */
 	private EntityInitializerBase entityInitializer;
+
+	/**
+	 * A {@link FrameBuffer} used to render to a logical screen. This way the game can be
+	 * designed for a single screen resolution and scaled to the running device's screen resolution.
+	 */
 	private FrameBuffer           frameBuffer;
+
+	/**
+	 * The screen width.
+	 */
 	private int                   w;
+
+	/**
+	 * The screen height.
+	 */
 	private int                   h;
-	private final float           oldRatio;
+
+	/**
+	 * The aspect ratio of the logical screen.
+	 */
+	private final float           fbAspectRatio;
+
+	/**
+	 * Flag to indicate that all assets have been successfully loaded.
+	 */
 	private boolean               assetsLoaded;
+
+	/**
+	 * A pixel perfect camera used for rendering to the frame buffer.
+	 */
 	private OrthographicCamera    fbCamera;
+
+	/**
+	 * The bounding rectangle of the frame buffer.
+	 */
 	private Rectangle             fbBounds;
+
+	/**
+	 * An auxiliary vector for input calculations.
+	 */
 	private final Vector3         temp;
 
+	/**
+	 * Creates the state and the entity processing systems.
+	 * 
+	 * @param core A GameCore instance. See {@link BaseState#BaseState(GameCore)}.
+	 * @throws IllegalArgumentException If core is null;
+	 */
 	public InGameState(final GameCore core) throws IllegalArgumentException{
 		super(core);
 
+		// Initialize all fields.
 		engine = new PooledEngine();
-		frameBuffer = new FrameBuffer(Format.RGB565, ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT, false);
-		fbBounds = new Rectangle();
 		w = Gdx.graphics.getWidth();
 		w = Gdx.graphics.getHeight();
-		oldRatio = aspectRatio(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
 		assetsLoaded = false;
-		fbCamera = new OrthographicCamera(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
 		temp = new Vector3();
+
+		// Create the framebuffer.
+		frameBuffer = new FrameBuffer(Format.RGB565, ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT, false);
+		fbAspectRatio = aspectRatio(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
+		fbCamera = new OrthographicCamera(ProjectConstants.FB_WIDTH, ProjectConstants.FB_HEIGHT);
+		fbBounds = new Rectangle();
 
 		// Create all entities.
 		entityInitializer = new PongEntityInitializer();
@@ -103,7 +158,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 
 			// Scale the frame buffer to the current screen size.
 			renderW = w;
-			renderH = renderW / oldRatio;
+			renderH = renderW / fbAspectRatio;
 
 			// Set the rendering position of the frame buffer.
 			x = -(renderW / 2.0f);
@@ -135,10 +190,13 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 
 	@Override
 	public boolean keyDown(int keycode){
+		// If the user pressed the escape key (the back button in Android) then go back
+		// to the main menu. Else ignore the key.
 		if(keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE){
 			core.nextState = game_states_t.MAIN_MENU;
 			return true;
 		}
+
 		return false;
 	}
 
@@ -146,6 +204,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	public boolean touchDown(int screenX, int screenY, int pointer, int button){
 		InterSystemMessage message;
 
+		// If the user touched the screen inside the frame buffer then notify the player positioning system.
 		if(touchInsideFrameBuffer(screenX, screenY)){
 			message = new InterSystemMessage(HumanPlayerPositioningSystem.class.getCanonicalName());
 			message.data.put("INPUT_Y", convertWorldYToFrameBufferY(screenY));
@@ -159,6 +218,7 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	public boolean touchDragged(int screenX, int screenY, int pointer){
 		InterSystemMessage message;
 
+		// If the user touched the screen inside the frame buffer then notify the player positioning system.
 		if(touchInsideFrameBuffer(screenX, screenY)){
 			message = new InterSystemMessage(HumanPlayerPositioningSystem.class.getCanonicalName());
 			message.data.put("INPUT_Y", convertWorldYToFrameBufferY(screenY));
@@ -174,12 +234,19 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		assetsLoaded = true;
 	}
 
+	/**
+	 *  Checks if the user clicked or touched a point inside the frame buffer.
+	 * 
+	 * @param screenX The X coordinate of the touch point.
+	 * @param screenY The Y coordinate of the touch point.
+	 * @return True if the touch point is inside the frame buffer.
+	 */
 	private boolean touchInsideFrameBuffer(int screenX, int screenY){
 		float fbW, fbH;
 
 		unprojectTouch(screenX, screenY);
 		fbW = w;
-		fbH = fbW / oldRatio;
+		fbH = fbW / fbAspectRatio;
 		fbBounds.set(-(fbW / 2.0f), -(fbH / 2.0f), fbW, fbH);
 
 		if(fbBounds.contains(touchPointWorldCoords)){
@@ -189,8 +256,14 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 		}
 	}
 
+	/**
+	 * Converts the Y coordinate of a touch point in screen coordinates to the world coordinates of the framebuffer.
+	 * 
+	 * @param y The Y coordinate of a touch point.
+	 * @return The Y coordinate converted to world coordinates.
+	 */
 	private float convertWorldYToFrameBufferY(float y){
-		float fbH = h / oldRatio;
+		float fbH = h / fbAspectRatio;
 		temp.set(0, y + (fbH / 2.0f), 0);
 		fbCamera.unproject(temp, 0, 0, w, fbH);
 

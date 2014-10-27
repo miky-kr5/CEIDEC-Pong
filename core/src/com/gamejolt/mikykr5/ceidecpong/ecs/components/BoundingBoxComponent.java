@@ -19,7 +19,15 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+/**
+ * A 2D bounding rectangle component.
+ * 
+ * @author Miguel Astor
+ */
 public class BoundingBoxComponent extends Component implements Poolable {
+	/**
+	 * The bounding rectangle.
+	 */
 	public Rectangle bbox;
 
 	public BoundingBoxComponent() {

@@ -18,10 +18,27 @@ package com.gamejolt.mikykr5.ceidecpong.ecs.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+/**
+ * A 2D velocity {@link Component}
+ * 
+ * @author Miguel Astor
+ */
 public class VelocityComponent extends Component implements Poolable {
+	/**
+	 * The velocity in the X axis.
+	 */
 	public float vx = 0;
+
+	/**
+	 * The velocity in the Y axis.
+	 */
 	public float vy = 0;
 
+	/**
+	 * Sets both fields simultaneously.
+	 * @param vx
+	 * @param vy
+	 */
 	public void setXY(float vx, float vy){
 		this.vx = vx;
 		this.vy = vy;

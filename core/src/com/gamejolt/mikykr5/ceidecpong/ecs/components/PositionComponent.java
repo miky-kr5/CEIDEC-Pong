@@ -18,10 +18,28 @@ package com.gamejolt.mikykr5.ceidecpong.ecs.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+/**
+ * A 2D position {@link Component}.
+ * 
+ * @author Miguel Astor.
+ */
 public class PositionComponent extends Component implements Poolable {
+	/**
+	 * The X coordinate.
+	 */
 	public float x = 0;
+
+	/**
+	 * The Y coordinate.
+	 */
 	public float y = 0;
 
+	/**
+	 * Sets both coordinates simultaneously.
+	 * 
+	 * @param x
+	 * @param y
+	 */
 	public void setXY(float x, float y){
 		this.x = x;
 		this.y = y;

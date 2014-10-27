@@ -19,7 +19,15 @@ import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+/**}
+ * A 2D renderable {@link Component}.
+ * 
+ * @author Miguel Astor
+ */
 public class SpriteComponent extends Component implements Poolable {
+	/**
+	 * The renderable sprite.
+	 */
 	public Sprite sprite;
 
 	public SpriteComponent(){

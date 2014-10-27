@@ -18,7 +18,15 @@ package com.gamejolt.mikykr5.ceidecpong.ecs.components;
 import com.badlogic.ashley.core.Component;
 import com.badlogic.gdx.utils.Pool.Poolable;
 
+/**
+ * A {@link Component} to hold a player's score.
+ * 
+ * @author Miguel Astor
+ */
 public class ScoreComponent extends Component implements Poolable{
+	/**
+	 * The score.
+	 */
 	public int score = 0;
 
 	@Override

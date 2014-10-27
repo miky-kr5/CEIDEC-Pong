@@ -15,6 +15,16 @@
  */
 package com.gamejolt.mikykr5.ceidecpong.interfaces;
 
-public interface AssetsLoadedListener {
+import com.gamejolt.mikykr5.ceidecpong.utils.AsyncAssetLoader;
+
+/**
+ * An interface for objects that want to be notified when {@link AsyncAssetLoader} has finished loading all requested assets.
+ * 
+ * @author Miguel Astor
+ */
+public interface AssetsLoadedListener{
+	/**
+	 * Called when {@link AsyncAssetLoader} has finished loading so that observers can fetch their assets.
+	 */
 	public void onAssetsLoaded();
 }
