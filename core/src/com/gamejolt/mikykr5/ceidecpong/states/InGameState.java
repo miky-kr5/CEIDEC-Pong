@@ -188,8 +188,9 @@ public class InGameState extends BaseState implements AssetsLoadedListener{
 	}
 
 	private float convertWorldYToFrameBufferY(float y){
-		Vector3 vec3 = new Vector3(0, y - Math.abs(fbBounds.y - (-(h/2.0f))), 0);
-		fbCamera.unproject(vec3, -(w / 2.0f), -((h / oldRatio) / 2.0f), w, h / oldRatio);
+		float fbH = h / oldRatio;
+		Vector3 vec3 = new Vector3(0, y + (fbH / 2.0f), 0);
+		fbCamera.unproject(vec3, 0, 0, w, fbH);
 
 		return vec3.y;
 	}
