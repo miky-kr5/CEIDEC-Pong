@@ -21,10 +21,33 @@ import com.badlogic.gdx.graphics.Texture;
 import com.gamejolt.mikykr5.ceidecpong.GameCore;
 import com.gamejolt.mikykr5.ceidecpong.GameCore.game_states_t;
 
+/**
+ * A simple state that just shows a logo.
+ * 
+ * @author Miguel Astor
+ */
 public class LogoScreenState extends BaseState{
+	/**
+	 * The maximum amount of time to show the logo.
+	 */
+	private static final long MAX_TIME = 8000L;
+
+	/**
+	 * The logo to show.
+	 */
 	private Texture logo;
+
+	/**
+	 * A time counter.
+	 */
 	private long then;
 
+	/**
+	 * Create the logo.
+	 * 
+	 * @param core A game core. See {@link BaseState#BaseState(GameCore)} for details.
+	 * @throws IllegalArgumentException If core is null.
+	 */
 	public LogoScreenState(final GameCore core) throws IllegalArgumentException{
 		super(core);
 		then = System.currentTimeMillis();
@@ -38,14 +61,16 @@ public class LogoScreenState extends BaseState{
 		Gdx.gl.glClearColor(0, 0, 0, 1);
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 
+		// Render the logo.
 		core.batch.setProjectionMatrix(this.pixelPerfectCamera.combined);
 		core.batch.begin();{
 			core.batch.draw(logo, -logo.getWidth() / 2, -logo.getHeight() / 2);
 		}core.batch.end();
 
+		// Check if the time expired, then change to the next state if needed.
 		now = System.currentTimeMillis();
 		delta = now - then;
-		if(delta > 8000L){
+		if(delta > MAX_TIME){
 			core.nextState = game_states_t.LOADING;
 			then = now;
 		}
@@ -58,15 +83,15 @@ public class LogoScreenState extends BaseState{
 
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button){
+		// Set the time counter to 0 so that a state change will be scheduled on the next frame. 
 		then = 0L;
-
 		return true;
 	};
 
 	@Override
 	public boolean keyDown(int keycode){
+		// Set the time counter to 0 so that a state change will be scheduled on the next frame.
 		then = 0L;
-
 		return true;
 	};
 }

@@ -34,10 +34,25 @@ import com.gamejolt.mikykr5.ceidecpong.interfaces.AssetsLoadedListener;
 import com.gamejolt.mikykr5.ceidecpong.utils.AsyncAssetLoader;
 import com.gamejolt.mikykr5.ceidecpong.utils.managers.CachedFontManager;
 
+/**
+ * A state in charge of rendering and handling the main menu of the game.
+ * 
+ * @author Miguel Astor
+ */
 public class MainMenuState extends BaseState implements AssetsLoadedListener{
-	// Helper fields.
+	/**
+	 * An {@link AsyncAssetLoader} instance.
+	 */
 	private AsyncAssetLoader  loader;
+
+	/**
+	 * An instance of the {@link CachedFontManager} used to render the buttons.
+	 */
 	private CachedFontManager fontManager;
+
+	/**
+	 * A flag to indicate that all assets have been loaded.
+	 */
 	private boolean           assetsLoaded;
 
 	// Buttons and other GUI components.
@@ -51,15 +66,39 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	private NinePatch           menuButtonEnabled9p;
 	private NinePatch           menuButtonDisabled9p;
 	private NinePatch           menuButtonPressed9p;
-	private BitmapFont          font;
+	private BitmapFont          buttonFont;
+
+	/**
+	 * A {@link ScrollingBackground} effect to make things livelier.
+	 */
 	private ScrollingBackground scrollingBckg;
 
-	// Button touch helper fields.
+	/**
+	 * A flag to indicate that the start button is pressed.
+	 */
 	private boolean startButtonTouched;
+
+	/**
+	 * A holder to identify the finger that is touching the start button in multitouch screens.
+	 */
 	private int     startButtonTouchPointer;
+
+	/**
+	 * A flag to indicate that the quit button is pressed.
+	 */
 	private boolean quitButtonTouched;
+
+	/**
+	 * A holder to identify the finger that is touching the quit button in multitouch screens.
+	 */
 	private int     quitButtonTouchPointer;
 
+	/**
+	 * Creates the menu and loads all related assets.
+	 * 
+	 * @param core A game core. See {@link BaseState#BaseState(GameCore)} for details.
+	 * @throws IllegalArgumentException If core is null.
+	 */
 	public MainMenuState(final GameCore core) throws IllegalArgumentException{
 		super(core);
 
@@ -71,7 +110,7 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 		loader.addAssetToLoad("data/gfx/gui/Anonymous_Pill_Button_Yellow.png", Texture.class);
 		loader.addAssetToLoad("data/gfx/gui/Anonymous_Pill_Button_Cyan.png", Texture.class);
 		loader.addAssetToLoad("data/gfx/gui/Anonymous_Pill_Button_Blue.png", Texture.class);
-		font = fontManager.loadFont("data/fonts/d-puntillas-B-to-tiptoe.ttf");
+		buttonFont = fontManager.loadFont("data/fonts/d-puntillas-B-to-tiptoe.ttf");
 
 		// Set up the background.
 		scrollingBckg = new ScrollingBackground("data/gfx/textures/grass.png");
@@ -94,10 +133,10 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 
 		core.batch.setProjectionMatrix(pixelPerfectCamera.combined);
 		core.batch.begin();{
-
+			// Render the background.
 			scrollingBckg.render(core.batch);
 
-			// Render buttons.
+			// Render the buttons.
 			startButton.draw(core.batch, 1.0f);
 			quitButton.draw(core.batch, 1.0f);
 
@@ -121,6 +160,8 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	public boolean touchDown(int screenX, int screenY, int pointer, int button){
 		unprojectTouch(screenX, screenY);
 
+		// If either button is enabled, has been touched and the opposite button is not touched then mark it as
+		// activated and save the id of the pointer that touched it.
 		if(!startButton.isDisabled() && startButtonBBox.contains(touchPointWorldCoords) && !quitButtonTouched){
 			startButton.setChecked(true);
 			startButtonTouched = true;
@@ -138,6 +179,8 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	public boolean touchUp(int screenX, int screenY, int pointer, int button){
 		unprojectTouch(screenX, screenY);
 
+		// If either button was activated and touched but has been released by the user then mark it as inactive
+		// and execute it's respective state change.
 		if(!startButton.isDisabled() && startButtonBBox.contains(touchPointWorldCoords) && startButtonTouched){
 			startButton.setChecked(false);
 			startButtonTouched = false;
@@ -157,6 +200,8 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 	public boolean touchDragged(int screenX, int screenY, int pointer){
 		unprojectTouch(screenX, screenY);
 
+		// If either button was touched but the user dragged the pointer away from the button without releasing it then
+		// mark the button as inactive.
 		if(!startButton.isDisabled() && startButtonTouched && pointer == startButtonTouchPointer && !startButtonBBox.contains(touchPointWorldCoords)){
 			startButtonTouchPointer = -1;
 			startButtonTouched = false;
@@ -172,7 +217,8 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 
 	@Override
 	public boolean keyDown(int keycode){
-		if(keycode == Input.Keys.BACK){
+		// If the user pressed the escape key or the back button in Android then quit.
+		if(keycode == Input.Keys.BACK || keycode == Input.Keys.ESCAPE){
 			Gdx.app.exit();
 			return true;
 		}
@@ -194,7 +240,7 @@ public class MainMenuState extends BaseState implements AssetsLoadedListener{
 
 		// Create the buttons.
 		textButtonStyle = new TextButtonStyle();
-		textButtonStyle.font = font;
+		textButtonStyle.font = buttonFont;
 		textButtonStyle.up = new NinePatchDrawable(menuButtonEnabled9p);
 		textButtonStyle.checked = new NinePatchDrawable(menuButtonPressed9p);
 		textButtonStyle.disabled = new NinePatchDrawable(menuButtonDisabled9p);
